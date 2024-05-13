@@ -1,0 +1,11 @@
+FROM python:3.9-slim
+
+COPY ./app/services/catalog/catalog.py /opt/app/
+
+COPY ./app/services/catalog/database_client.py /opt/app/
+
+RUN pip install fastapi psycopg2-binary "uvicorn[standard]"
+
+WORKDIR /opt/app
+
+ENTRYPOINT [ "uvicorn", "catalog:app", "--host", "0.0.0.0", "--port", "8083"]

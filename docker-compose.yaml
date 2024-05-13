@@ -1,0 +1,211 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 987234
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    networks:
+      - leaf-love-laugh-network
+
+  db2:
+    image: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 987234
+    volumes:
+      - ./db2:/var/lib/postgresql/data
+      - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
+    networks:
+      - leaf-love-laugh-network
+    ports:
+      - 5432:5432
+
+  cassandra-search:
+    container_name: cassandra-search
+    networks:
+      - leaf-love-laugh-network
+    ports:
+      - 9042:9042
+    image: cassandra:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cassandra-review:
+    container_name: cassandra-review
+    networks:
+      - leaf-love-laugh-network
+    ports:
+      - 9043:9042
+    image: cassandra:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cassandra-latest:
+    container_name: cassandra-latest
+    networks:
+      - leaf-love-laugh-network
+    ports:
+      - 9044:9042
+    image: cassandra:latest
+    healthcheck:
+      test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  zookeeper-server:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper-server
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - leaf-love-laugh-network
+
+
+  kafka-server:
+    container_name: kafka-server
+    networks:
+      - leaf-love-laugh-network
+    image: 'bitnami/kafka:latest'
+    environment:
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper-server:2181
+
+  kafka-topics:
+    image: bitnami/kafka:latest
+    command: kafka-topics.sh --create --bootstrap-server kafka-server:9092 --replication-factor 1 --partitions 3 --topic reviews
+    networks:
+      - leaf-love-laugh-network
+    depends_on:
+      - kafka-server
+
+
+  create-table:
+    container_name: create-table
+    networks:
+      - leaf-love-laugh-network
+    image: create-table
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: DockerfileCreateTables
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+
+  lll-api:
+    container_name: lll-api
+    networks:
+      - leaf-love-laugh-network
+    image: lll-api
+    pull_policy: build
+    ports:
+      - 8080:8080
+    build:
+      context: .
+      dockerfile: DockerfileFacade
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+  lll-search:
+    container_name: lll-search
+    networks:
+      - leaf-love-laugh-network
+    image: lll-search
+    pull_policy: build
+    ports:
+      - 8081:8081
+    build:
+      context: .
+      dockerfile: DockerfileSearch
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+  lll-authentication:
+    container_name: lll-authentication
+    networks:
+      - leaf-love-laugh-network
+    image: lll-log
+    pull_policy: build
+    ports:
+      - 8082:8082
+    build:
+      context: .
+      dockerfile: DockerfileAuthentication
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+  lll-catalog:
+    container_name: lll-catalog
+    networks:
+      - leaf-love-laugh-network
+    image: lll-catalog
+    pull_policy: build
+    ports:
+      - 8083:8083
+    build:
+      context: .
+      dockerfile: DockerfileCatalog
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+  lll-reviews:
+    container_name: lll-reviews
+    networks:
+      - leaf-love-laugh-network
+    image: lll-reviews
+    pull_policy: build
+    ports:
+      - 8084:8084
+    build:
+      context: .
+      dockerfile: DockerfileReview
+    depends_on:
+      cassandra-review:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+  lll-latest:
+    container_name: lll-latest
+    networks:
+      - leaf-love-laugh-network
+    image: lll-latest
+    pull_policy: build
+    ports:
+      - 8085:8085
+    build:
+      context: .
+      dockerfile: DockerfileLatest
+    depends_on:
+      cassandra-search:
+        condition: service_healthy
+      create-table:
+        condition: service_completed_successfully
+
+networks:
+  leaf-love-laugh-network:
+    name: leaf-love-laugh-network

@@ -1,0 +1,11 @@
+FROM python:3.9-slim
+
+COPY ./app/services/latest/latest.py /opt/app/
+
+COPY ./app/services/latest/cassandra_client.py /opt/app/
+
+RUN pip install fastapi cassandra-driver "uvicorn[standard]"
+
+WORKDIR /opt/app
+
+ENTRYPOINT [ "uvicorn", "latest:app", "--host", "0.0.0.0", "--port", "8085"]
