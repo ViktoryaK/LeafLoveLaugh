@@ -1,36 +1,38 @@
 services:
-  db:
+  postgres-catalog:
     image: postgres
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 987234
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - ./postgres-catalog:/var/lib/postgresql/data
       - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     networks:
       - leaf-love-laugh-network
+    expose:
+      - 5432
 
-  db2:
+  postgres-users:
     image: postgres
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 987234
     volumes:
-      - ./db2:/var/lib/postgresql/data
+      - ./postgres-users:/var/lib/postgresql/data
       - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
     networks:
       - leaf-love-laugh-network
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
 
   cassandra-search:
     container_name: cassandra-search
     networks:
       - leaf-love-laugh-network
-    ports:
-      - 9042:9042
+    expose:
+      - 9042
     image: cassandra:latest
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
@@ -42,8 +44,8 @@ services:
     container_name: cassandra-review
     networks:
       - leaf-love-laugh-network
-    ports:
-      - 9043:9042
+    expose:
+      - 9042
     image: cassandra:latest
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
@@ -55,8 +57,8 @@ services:
     container_name: cassandra-latest
     networks:
       - leaf-love-laugh-network
-    ports:
-      - 9044:9042
+    expose:
+      - 9042
     image: cassandra:latest
     healthcheck:
       test: [ "CMD-SHELL", "cqlsh -e 'DESCRIBE KEYSPACES;'" ]
@@ -71,7 +73,6 @@ services:
       - ALLOW_ANONYMOUS_LOGIN=yes
     networks:
       - leaf-love-laugh-network
-
 
   kafka-server:
     container_name: kafka-server
@@ -90,19 +91,52 @@ services:
     depends_on:
       - kafka-server
 
-
-  create-table:
-    container_name: create-table
+  create-tables:
+    container_name: create-tables
     networks:
       - leaf-love-laugh-network
-    image: create-table
+    image: create-tables
     pull_policy: build
     build:
       context: .
-      dockerfile: DockerfileCreateTables
+      dockerfile: dockerfiles/create-tables.Dockerfile
     depends_on:
       cassandra-search:
         condition: service_healthy
+      cassandra-latest:
+        condition: service_healthy
+      cassandra-review:
+        condition: service_healthy
+      postgres-catalog:
+        condition: service_healthy
+      postgres-users:
+        condition: service_healthy
+
+  populate-postgres:
+    container_name: populate-postgres
+    networks:
+      - leaf-love-laugh-network
+    image: populate-postgres
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: dockerfiles/populate-postgres.Dockerfile
+    depends_on:
+      create-tables:
+        condition: service_completed_successfully
+
+  populate-cassandra:
+    container_name: populate-cassandra
+    networks:
+      - leaf-love-laugh-network
+    image: populate-cassandra
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: dockerfiles/populate-cassandra.Dockerfile
+    depends_on:
+      create-tables:
+        condition: service_completed_successfully
 
   lll-api:
     container_name: lll-api
@@ -114,12 +148,13 @@ services:
       - 8080:8080
     build:
       context: .
-      dockerfile: DockerfileFacade
+      dockerfile: dockerfiles/facade.Dockerfile
     depends_on:
-      cassandra-search:
-        condition: service_healthy
-      create-table:
-        condition: service_completed_successfully
+      - lll-authentication
+      - lll-catalog
+      - lll-latest
+      - lll-review
+      - lll-search
 
   lll-search:
     container_name: lll-search
@@ -127,15 +162,13 @@ services:
       - leaf-love-laugh-network
     image: lll-search
     pull_policy: build
-    ports:
-      - 8081:8081
+    expose:
+      - 8080
     build:
       context: .
-      dockerfile: DockerfileSearch
+      dockerfile: dockerfiles/search.Dockerfile
     depends_on:
-      cassandra-search:
-        condition: service_healthy
-      create-table:
+      populate-cassandra:
         condition: service_completed_successfully
 
   lll-authentication:
@@ -144,16 +177,13 @@ services:
       - leaf-love-laugh-network
     image: lll-log
     pull_policy: build
-    ports:
-      - 8082:8082
+    expose:
+      - 8080
     build:
       context: .
-      dockerfile: DockerfileAuthentication
+      dockerfile: dockerfiles/authentication.Dockerfile
     depends_on:
-      cassandra-search:
-        condition: service_healthy
-      create-table:
-        condition: service_completed_successfully
+      - postgres-users
 
   lll-catalog:
     container_name: lll-catalog
@@ -161,32 +191,28 @@ services:
       - leaf-love-laugh-network
     image: lll-catalog
     pull_policy: build
-    ports:
-      - 8083:8083
+    expose:
+      - 8080
     build:
       context: .
-      dockerfile: DockerfileCatalog
+      dockerfile: dockerfiles/catalog.Dockerfile
     depends_on:
-      cassandra-search:
-        condition: service_healthy
-      create-table:
+      populate-postgres:
         condition: service_completed_successfully
 
-  lll-reviews:
-    container_name: lll-reviews
+  lll-review:
+    container_name: lll-review
     networks:
       - leaf-love-laugh-network
-    image: lll-reviews
+    image: lll-review
     pull_policy: build
-    ports:
-      - 8084:8084
+    expose:
+      - 8080
     build:
       context: .
-      dockerfile: DockerfileReview
+      dockerfile: dockerfiles/review.Dockerfile
     depends_on:
-      cassandra-review:
-        condition: service_healthy
-      create-table:
+      populate-cassandra:
         condition: service_completed_successfully
 
   lll-latest:
@@ -195,15 +221,13 @@ services:
       - leaf-love-laugh-network
     image: lll-latest
     pull_policy: build
-    ports:
-      - 8085:8085
+    expose:
+      - 8080
     build:
       context: .
-      dockerfile: DockerfileLatest
+      dockerfile: dockerfiles/latest.Dockerfile
     depends_on:
-      cassandra-search:
-        condition: service_healthy
-      create-table:
+      populate-cassandra:
         condition: service_completed_successfully
 
 networks:

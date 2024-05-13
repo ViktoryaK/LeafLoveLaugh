@@ -1,8 +1,8 @@
-CREATE KEYSPACE lll_comments WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3 };
+CREATE KEYSPACE lll_latest_reviews WITH REPLICATION = {'class' : 'SimpleStrategy', 'replication_factor' : 3 };
 
-USE lll_comments;
+USE lll_latest_reviews;
 
-CREATE TABLE search_comments
+CREATE TABLE latest_reviews
 (
     comment_id  UUID,
     plant_id    int,

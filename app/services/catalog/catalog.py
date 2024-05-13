@@ -28,7 +28,7 @@ async def catalog():
 
 
 @app.get("/catalog/{plant_id}")
-async def catalog_by_id(plant_id: int = 0):
+async def catalog_by_id(plant_id: int):
     try:
         return client.get_plant_by_id(plant_id)
     except PlantDoesNotExistError:

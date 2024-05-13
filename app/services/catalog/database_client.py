@@ -20,7 +20,7 @@ class CatalogDatabaseClient(PostgresClient):
         return [self._row_to_plant(row) for row in self._cursor.fetchall()]
 
     def get_plant_by_id(self, plant_id: int):
-        self._cursor.execute(f"SELECT * FROM {self._table_name} WHERE plant_id = %s", plant_id)
+        self._cursor.execute(f"SELECT * FROM {self._table_name} WHERE plant_id = %s", (str(plant_id),))
         row = self._cursor.fetchone()
 
         if not row:

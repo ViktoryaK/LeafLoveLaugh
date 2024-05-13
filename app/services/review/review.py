@@ -4,13 +4,13 @@ from datetime import datetime
 
 from fastapi import FastAPI
 from kafka import KafkaProducer
-from database_client import ReviewDatabaseClient
+from app.services.review.database_client import ReviewDatabaseClient
 
 from app.common import review_service_url
 
 app = FastAPI(host="localhost", port=review_service_url)
 
-client = ReviewDatabaseClient(host='cassandra-review', port=9043, keyspace='lll_comments')
+client = ReviewDatabaseClient(host='cassandra-review', port=9042, keyspace='lll_review')
 
 kafka_producer = KafkaProducer(bootstrap_servers=['kafka-server:9092'])
 
@@ -25,8 +25,8 @@ async def shutdown_event():
     client.close()
 
 
-@app.get("/review_service/{plant_id}")
-async def get_review(plant_id: int):
+@app.get("/reviews/{plant_id}")
+async def get_reviews(plant_id: int):
     result = client.get_reviews_for_plant(plant_id)
     reviews = []
     for row in result:
@@ -35,11 +35,10 @@ async def get_review(plant_id: int):
         for column in row._fields:
             reviews_dict[column] = getattr(row, column)
         reviews.append(reviews_dict)
-    response = {"reviews": reviews}
-    return response
+    return reviews
 
 
-@app.post("/review_service/{plant_id}")
+@app.post("/review/{plant_id}")
 async def post_review(plant_id: int, user_id: UUID, user_name: str, review: str):
     review_id = uuid4()
     date = datetime.now().strftime("%Y/%m/%d %H:%M:%S")

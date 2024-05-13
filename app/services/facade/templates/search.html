@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Plants</title>
+</head>
+<body>
+    <h1>Search Plants</h1>
+
+    <form action="/search" method="get">
+        <label for="sunlight">Sunlight:</label>
+        <input type="text" id="sunlight" name="sunlight" value="{{ search.sunlight }}">
+
+        <label for="moisture">Moisture:</label>
+        <input type="text" id="moisture" name="moisture" value="{{ search.moisture }}">
+
+        <label for="indoor_spread_min">Indoor Spread (Min):</label>
+        <input type="number" id="indoor_spread_min" name="indoor_spread_min" value="{{ search.indoor_spread_min }}">
+
+        <label for="indoor_spread_max">Indoor Spread (Max):</label>
+        <input type="number" id="indoor_spread_max" name="indoor_spread_max" value="{{ search.indoor_spread_max }}">
+
+        <label for="indoor_height_min">Indoor Height (Min):</label>
+        <input type="number" id="indoor_height_min" name="indoor_height_min" value="{{ search.indoor_height_min }}">
+
+        <label for="indoor_height_max">Indoor Height (Max):</label>
+        <input type="number" id="indoor_height_max" name="indoor_height_max" value="{{ search.indoor_height_max }}">
+
+        <label for="toxic_dogs">Toxic to Dogs:</label>
+        <input type="checkbox" id="toxic_dogs" name="toxic_dogs" {% if search.toxic_dogs %}checked{% endif %}>
+
+        <label for="toxic_cats">Toxic to Cats:</label>
+        <input type="checkbox" id="toxic_cats" name="toxic_cats" {% if search.toxic_cats %}checked{% endif %}>
+
+        <button type="submit">Search</button>
+    </form>
+
+    <h2>Search Results</h2>
+    <ul>
+        {% for result in search.results %}
+            <li>{{ result.name }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

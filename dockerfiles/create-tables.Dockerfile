@@ -1,6 +1,6 @@
 FROM cassandra:latest
 
-WORKDIR /opt/app
+WORKDIR /opt/lll/
 
 COPY create-tables.sh ./
 COPY create-tables.cql ./
@@ -10,4 +10,4 @@ COPY create-tables3.cql ./
 RUN chmod u+x create-tables.sh
 
 
-ENTRYPOINT ["bash", "-c", "/opt/app/create-tables.sh"]
+ENTRYPOINT ["bash", "-c", "/opt/lll/create-tables.sh"]
