@@ -29,7 +29,8 @@ async def consume():
 @app.on_event("startup")
 async def startup_event():
     client.connect()
-    await loop.create_task(consume())
+    # noinspection PyAsyncCall
+    loop.create_task(consume())
 
 
 @app.on_event("shutdown")

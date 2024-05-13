@@ -7,7 +7,7 @@ class ReviewDatabaseClient(CassandraClient):
     _table_name: ClassVar[str] = "reviews"
 
     def get_reviews_for_plant(self, plant_id: int):
-        query = f"SELECT user_name, comment, date FROM {self._table_name} WHERE plant_id = {plant_id} ORDER BY date"
+        query = f"SELECT user_name, review, date FROM {self._table_name} WHERE plant_id = {plant_id} ORDER BY date"
         return self._session.execute(query)
 
     def post_review(self, values):

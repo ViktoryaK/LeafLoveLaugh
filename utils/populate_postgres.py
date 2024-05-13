@@ -31,24 +31,25 @@ class PostgresClient:
         if self.conn:
             self.conn.close()
 
-    def insert_data(self, table, values, i):
+    def insert_data(self, table, values):
         self.cur.execute(
-            f"INSERT INTO {table} (Scientific_Name, Common_Name, img_name, Sunlight, Moisture," 
-        "Soil_Indicator, Plant_Spread, Plant_Height, Indoor_Spread, Indoor_Height, Toxic_Dogs, Toxic_Cats, "
-        "Plant_Habit, Plant_Type, Indoor_Flowering, Hanging, Bloom_Period, Humidity, Air_Purifying, "
-        f"Ph_Soil, Bloom_Description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            f"INSERT INTO {table} VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             values
         )
         self.conn.commit()
 
+    def clear(self, table):
+        self.cur.execute(f"TRUNCATE TABLE {table}")
+        self.conn.commit()
+
 
 if __name__ == "__main__":
-    dbname = "postgres2"
+    dbname = "postgres"
     user = "postgres"
     password = "987234"
-    host = 'localhost'
+    host = 'postgres-catalog'
     port = 5432
-    table_1 = 'Plants'
+    table_1 = 'plants'
 
     file_path = "data/plants_clean_40.csv"
 
@@ -58,6 +59,9 @@ if __name__ == "__main__":
 
     client = PostgresClient(dbname, user, password, host, port)
     client.connect()
-    for index, row in dataframe.iterrows():
-        client.insert_data(table_1, list(row), index)
+    client.clear(table_1)
+    print("started")
+    for _, row in dataframe.iterrows():
+        print(list(row))
+        client.insert_data(table_1, list(row))
     client.close()

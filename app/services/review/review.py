@@ -4,6 +4,8 @@ from datetime import datetime
 
 from fastapi import FastAPI
 from kafka import KafkaProducer
+from pydantic import BaseModel
+
 from app.services.review.database_client import ReviewDatabaseClient
 
 from app.common import review_service_url
@@ -38,18 +40,22 @@ async def get_reviews(plant_id: int):
     return reviews
 
 
+class PostReviewData(BaseModel):
+    user_id: UUID
+    review: str
+
+
 @app.post("/review/{plant_id}")
-async def post_review(plant_id: int, user_id: UUID, user_name: str, review: str):
+async def post_review(plant_id: int, data: PostReviewData):
     review_id = uuid4()
     date = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-    values = [review_id, plant_id, review, date, user_id, user_name]
+    values = [review_id, plant_id, data.review, date, data.user_id]
     client.post_review(values)
     data = {
         "plant_id": plant_id,
-        "user_id": str(user_id),
+        "user_id": str(data.user_id),
         "review_id": str(review_id),
-        "user_name": user_name,
-        "review": review,
+        "review": data.review,
         "date": date,
     }
 

@@ -7,7 +7,7 @@ class LatestDatabaseClient(CassandraClient):
     _table_name: ClassVar[str] = "latest_reviews"
 
     def get_reviews(self):
-        query = f"SELECT * FROM {self._table_name} ORDER BY date DESC LIMIT 10"
+        query = f"SELECT * FROM {self._table_name} DESC LIMIT 10"
         return self._session.execute(query)
 
     def post_review(self, data):

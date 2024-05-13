@@ -1,4 +1,7 @@
+from typing import Optional
+
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 from app.common import search_service_url
 from app.services.search.database_client import SearchDatabaseClient
@@ -18,10 +21,22 @@ async def shutdown_event():
     client.close()
 
 
+class SearchData(BaseModel):
+    sunlight: str
+    moisture: str
+    indoor_spread_min: float
+    indoor_spread_max: float
+    indoor_height_min: float
+    indoor_height_max: float
+    toxic_dogs: bool
+    toxic_cats: bool
+
+
 @app.get("/search")
-async def get_search(sunlight: str = None, moisture: str = None, indoor_spread_min: float = 0,
-                     indoor_spread_max: float = 100, indoor_height_min: float = 0,
-                     indoor_height_max: float = 100, toxic_dogs: bool = False, toxic_cats: bool = False):
-    result = client.get_tags(sunlight, moisture, indoor_spread_min, indoor_spread_max, indoor_height_min,
-                             indoor_height_max, toxic_dogs, toxic_cats)
+async def get_search(data: SearchData):
+    print(data)
+    result = client.get_tags(data.sunlight, data.moisture, data.indoor_spread_min, data.indoor_spread_max,
+                             data.indoor_height_min,
+                             data.indoor_height_max, data.toxic_dogs, data.toxic_cats)
+    print(result)
     return [{column: getattr(row, column) for column in getattr(row, "_fields")} for row in result]

@@ -12,6 +12,11 @@ services:
       - leaf-love-laugh-network
     expose:
       - 5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   postgres-users:
     image: postgres
@@ -26,6 +31,11 @@ services:
       - leaf-love-laugh-network
     expose:
       - 5432
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   cassandra-search:
     container_name: cassandra-search
@@ -150,11 +160,16 @@ services:
       context: .
       dockerfile: dockerfiles/facade.Dockerfile
     depends_on:
-      - lll-authentication
-      - lll-catalog
-      - lll-latest
-      - lll-review
-      - lll-search
+      lll-authentication:
+        condition: service_started
+      lll-catalog:
+        condition: service_started
+      lll-latest:
+        condition: service_started
+      lll-review:
+        condition: service_started
+      lll-search:
+        condition: service_started
 
   lll-search:
     container_name: lll-search
@@ -175,7 +190,7 @@ services:
     container_name: lll-authentication
     networks:
       - leaf-love-laugh-network
-    image: lll-log
+    image: lll-authentication
     pull_policy: build
     expose:
       - 8080
@@ -183,7 +198,10 @@ services:
       context: .
       dockerfile: dockerfiles/authentication.Dockerfile
     depends_on:
-      - postgres-users
+      postgres-users:
+        condition: service_started
+      cassandra-latest:
+        condition: service_healthy
 
   lll-catalog:
     container_name: lll-catalog

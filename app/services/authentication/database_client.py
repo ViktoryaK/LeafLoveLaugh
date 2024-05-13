@@ -41,7 +41,7 @@ class AuthorizationDatabaseClient(PostgresClient):
 
     def register_user(self, username: str, password: str) -> UUID:
         self._cursor.execute(
-            f"INSERT INTO {self._table_name} (user_id, user_name, password) VALUES (gen_random_uuid(), %s, %s)",
+            f"INSERT INTO {self._table_name} (user_id, user_name, password) VALUES (gen_random_uuid(), %s, %s) RETURNING user_id",
             (username, password))
         result = self._cursor.fetchone()
         self._connection.commit()

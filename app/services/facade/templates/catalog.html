@@ -6,10 +6,14 @@
     <title>Catalog</title>
 </head>
 <body>
+    <a href="/login">Log In</a><br>
+    <a href="/register">Sign Up</a><br>
+    <a href="/search">Search</a><br>
+    <a href="/latest-reviews">Latest Tips</a><br>
     <h1>Plant Catalog</h1>
     <ul>
         {% for plant in catalog %}
-            <li>{{ plant.name }}</li>
+            <li><a href="/catalog/{{ plant.id }}">{{ plant.common_name }}</a></li>
         {% endfor %}
     </ul>
 </body>

@@ -5,6 +5,6 @@ COPY ./data/plants_clean_40.csv /opt/lll/data/
 
 WORKDIR /opt/lll/
 
-RUN pip install psycopg2-binary
+RUN pip install pandas psycopg2-binary
 
 ENTRYPOINT [ "python", "populate_postgres.py" ]

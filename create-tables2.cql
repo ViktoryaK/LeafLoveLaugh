@@ -4,11 +4,11 @@ USE lll_review;
 
 CREATE TABLE reviews
 (
-    comment_id UUID,
+    review_id UUID,
     plant_id   int,
-    comment    text,
+    review    text,
     date       timestamp,
     user_id    UUID,
     user_name  text,
-    PRIMARY KEY ((plant_id), date, comment_id)
+    PRIMARY KEY ((plant_id), date, review_id)
 );

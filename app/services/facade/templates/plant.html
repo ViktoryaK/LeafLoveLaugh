@@ -6,9 +6,38 @@
     <title>Plant Details</title>
 </head>
 <body>
-    <h1>{{ plant.name }}</h1>
-    <p>Description: {{ plant.description }}</p>
+    <a href="/catalog">View Catalog</a><br>
+    <a href="/login">Log In</a><br>
+    <a href="/register">Sign Up</a><br>
+    <a href="/search">Search</a><br>
+    <a href="/latest-reviews">Latest Tips</a><br>
+    <h1>{{ plant.scientific_name }}</h1>
+    <p>Common name: {{ plant.common_name }}</p>
+    <p>Sunlight: {{ plant.sunlight }}</p>
+    <p>Moisture: {{ plant.moisture }}</p>
+    <p>Soil indicator: {{ plant.soil_indicator }}</p>
+    <p>Plant spread: {{ plant.spread }}</p>
+    <p>Plant height: {{ plant.height }}</p>
+    <p>Indoor spread: {{ plant.indoor_spread }}</p>
+    <p>Indoor height: {{ plant.indoor_height }}</p>
+    <p>Toxic to dogs: {{ plant.toxic_dogs }}</p>
+    <p>Toxic to cats: {{ plant.toxic_cats }}</p>
+    <p>Plant habit: {{ plant.habit }}</p>
+    <p>Type: {{ plant.type }}</p>
+    <p>Indoor flowering: {{ plant.indoor_flowering }}</p>
+    <p>Hanging: {{ plant.hanging }}</p>
+    <p>Bloom period: {{ plant.bloom_period }}</p>
+    <p>Humidity: {{ plant.humidity }}</p>
+    <p>Air purifying: {{ plant.air_purifying }}</p>
+    <p>pH Soil: {{ plant.ph_soil }}</p>
+    <p>Bloom description: {{ plant.bloom_description }}</p>
+
     <h2>Comments</h2>
+    <form action="/review" method="post">
+        <input type="hidden" name="plant_id" value="{{ plant.plant_id }}">
+        <input type="text" id="review" name="review" placeholder="Enter your review" required>
+        <button type="submit">Submit Review</button>
+    </form>
     <ul>
         {% for comment in comments %}
             <li>{{ comment }}</li>

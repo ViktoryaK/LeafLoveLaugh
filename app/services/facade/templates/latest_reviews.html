@@ -6,14 +6,18 @@
     <title>Latest Reviews</title>
 </head>
 <body>
+    <a href="/catalog">View Catalog</a><br>
+    <a href="/login">Log In</a><br>
+    <a href="/register">Sign Up</a><br>
+    <a href="/search">Search</a><br>
     <h1>Latest Reviews</h1>
 
     <ul>
         {% for review in reviews %}
             <li>
-                <strong>User:</strong> {{ review.user.name }} <br>
-                <strong>Plant:</strong> {{ review.plant.name }} <br>
-                <strong>Review:</strong> {{ review.text }}
+                <strong>User:</strong> {{ review.user_name }} <br>
+                <strong>Date:</strong> {{ review.date }} <br>
+                <strong>Review:</strong> {{ review.review }}
             </li>
         {% endfor %}
     </ul>

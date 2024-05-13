@@ -4,7 +4,7 @@ COPY ./app/services/facade/ /opt/lll/app/services/facade/
 COPY ./app/*.py /opt/lll/app/
 COPY ./app/services/facade/templates /opt/lll/app/services/facade/templates
 
-RUN pip install fastapi requests "uvicorn[standard]"
+RUN pip install fastapi itsdangerous requests "uvicorn[standard]"
 
 WORKDIR /opt/lll
 

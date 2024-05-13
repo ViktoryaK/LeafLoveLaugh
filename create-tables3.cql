@@ -4,11 +4,11 @@ USE lll_latest_reviews;
 
 CREATE TABLE latest_reviews
 (
-    comment_id  UUID,
+    review_id  UUID,
     plant_id    int,
-    comment     text,
+    review     text,
     date        timestamp,
     user_id     UUID,
     user_name   text,
-    PRIMARY KEY ((comment_id), date)
+    PRIMARY KEY ((review_id), date)
 ) WITH CLUSTERING ORDER BY (date DESC);

@@ -5,10 +5,10 @@ from app.common import catalog_service_port
 
 app = FastAPI(host="localhost", port=catalog_service_port)
 
-client = CatalogDatabaseClient(dbname="postgres2",
+client = CatalogDatabaseClient(dbname="postgres",
                                user="postgres",
                                password="987234",
-                               host='db2',
+                               host="postgres-catalog",
                                port=5432)
 
 

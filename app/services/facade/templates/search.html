@@ -3,34 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Plants</title>
+    <title>Plant Details</title>
 </head>
 <body>
+    <a href="/catalog">View Catalog</a><br>
+    <a href="/login">Log In</a><br>
+    <a href="/register">Sign Up</a><br>
+    <a href="/search">Search</a><br>
+    <a href="/latest-reviews">Latest Tips</a><br>
     <h1>Search Plants</h1>
 
     <form action="/search" method="get">
         <label for="sunlight">Sunlight:</label>
-        <input type="text" id="sunlight" name="sunlight" value="{{ search.sunlight }}">
+        <select id="sunlight" name="sunlight">
+            <option value="Full sun to part shade" {% if search.sunlight == "Full sun to part shade" %}selected{% endif %}>Full sun to part shade</option>
+            <option value="Part shade" {% if search.sunlight == "Part shade" %}selected{% endif %}>Part shade</option>
+            <option value="Full sun" {% if search.sunlight == "Full sun" %}selected{% endif %}>Full sun</option>
+            <option value="Part shade to full shade" {% if search.sunlight == "Part shade to full shade" %}selected{% endif %}>Part shade to full shade</option>
+            <option value="Full sun to part sun" {% if search.sunlight == "Full sun to part sun" %}selected{% endif %}>Full sun to part sun</option>
+        </select>
 
         <label for="moisture">Moisture:</label>
-        <input type="text" id="moisture" name="moisture" value="{{ search.moisture }}">
+        <select id="moisture" name="moisture">
+            <option value="Medium" {% if search.moisture == "Medium" %}selected{% endif %}>Medium</option>
+            <option value="Low to medium" {% if search.moisture == "Low to medium" %}selected{% endif %}>Low to medium</option>
+            <option value="High" {% if search.moisture == "High" %}selected{% endif %}>High</option>
+            <option value="Medium to high" {% if search.moisture == "Medium to high" %}selected{% endif %}>Medium to high</option>
+            <option value="Low" {% if search.moisture == "Low" %}selected{% endif %}>Low</option>
+        </select>
 
-        <label for="indoor_spread_min">Indoor Spread (Min):</label>
-        <input type="number" id="indoor_spread_min" name="indoor_spread_min" value="{{ search.indoor_spread_min }}">
+
+         <label for="indoor_spread_min">Indoor Spread (Min):</label>
+        <input type="range" id="indoor_spread_min" name="indoor_spread_min" value="{{ search.indoor_spread_min }}" min="0" max="15">
 
         <label for="indoor_spread_max">Indoor Spread (Max):</label>
-        <input type="number" id="indoor_spread_max" name="indoor_spread_max" value="{{ search.indoor_spread_max }}">
+        <input type="range" id="indoor_spread_max" name="indoor_spread_max" value="{{ search.indoor_spread_max }}" min="0" max="15">
 
         <label for="indoor_height_min">Indoor Height (Min):</label>
-        <input type="number" id="indoor_height_min" name="indoor_height_min" value="{{ search.indoor_height_min }}">
+        <input type="range" id="indoor_height_min" name="indoor_height_min" value="{{ search.indoor_height_min }}" min="0" max="15">
 
         <label for="indoor_height_max">Indoor Height (Max):</label>
-        <input type="number" id="indoor_height_max" name="indoor_height_max" value="{{ search.indoor_height_max }}">
+        <input type="range" id="indoor_height_max" name="indoor_height_max" value="{{ search.indoor_height_max }}" min="0" max="15">
 
-        <label for="toxic_dogs">Toxic to Dogs:</label>
+        <label for="toxic_dogs">Have Dog:</label>
         <input type="checkbox" id="toxic_dogs" name="toxic_dogs" {% if search.toxic_dogs %}checked{% endif %}>
 
-        <label for="toxic_cats">Toxic to Cats:</label>
+        <label for="toxic_cats">Have Cat:</label>
         <input type="checkbox" id="toxic_cats" name="toxic_cats" {% if search.toxic_cats %}checked{% endif %}>
 
         <button type="submit">Search</button>
@@ -38,8 +56,16 @@
 
     <h2>Search Results</h2>
     <ul>
-        {% for result in search.results %}
-            <li>{{ result.name }}</li>
+        {% for result in search %}
+        <div>
+            <li><a href="/catalog/{{ result.plant_id }}">{{ result.plant_name }}</a></li>
+            <h3>{{ result.plant_name }}</h3>
+            <li> {{ result.sunlight}}</li>
+            <li> {{ result.moisture}}</li>
+            <li> {{ result.toxic_dogs}}</li>
+            <li> {{ result.toxic_cats}}</li>
+        </div>
+
         {% endfor %}
     </ul>
 </body>

@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import FastAPI, HTTPException, status
 from passlib.context import CryptContext
+from pydantic import BaseModel
 
 from app.services.authentication.database_client import AuthorizationDatabaseClient, UserAlreadyExistsError, \
     AuthenticationFailure, UserNotFoundError
@@ -14,7 +15,7 @@ crypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 client = AuthorizationDatabaseClient(dbname="postgres",
                                      user="postgres",
                                      password="987234",
-                                     host="db",
+                                     host="postgres-users",
                                      port=5432)
 
 
@@ -28,18 +29,28 @@ async def shutdown_event():
     client.close()
 
 
+class LoginData(BaseModel):
+    username: str
+    password: str
+
+
 @app.post('/login')
-async def login(username: str, password: str):
+async def login(data: LoginData):
     try:
-        return {"user_id": client.authenticate_user(username, crypt_context.hash(password))}
+        return {"user_id": client.authenticate_user(data.username, crypt_context.hash(data.password))}
     except AuthenticationFailure:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
 
 
+class RegisterData(BaseModel):
+    username: str
+    password: str
+
+
 @app.post('/register')
-async def register(username: str = "user", password: str = "user"):
+async def register(data: RegisterData):
     try:
-        return {"user_id": client.register_user(username, crypt_context.hash(password))}
+        return {"user_id": client.register_user(data.username, crypt_context.hash(data.password))}
     except UserAlreadyExistsError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 

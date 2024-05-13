@@ -40,7 +40,7 @@ class CassandraClient:
             print(f"Can't add row {data}")
 
 if __name__ == "__main__":
-    host = 'localhost'
+    host = 'cassandra-search'
     port = 9042
     keyspace = 'lll_search'
     table_1 = 'search_tags'
