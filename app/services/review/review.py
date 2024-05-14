@@ -41,7 +41,7 @@ async def get_reviews(plant_id: int):
 
 
 class PostReviewData(BaseModel):
-    user_id: UUID
+    user_name: str
     review: str
 
 
@@ -49,11 +49,11 @@ class PostReviewData(BaseModel):
 async def post_review(plant_id: int, data: PostReviewData):
     review_id = uuid4()
     date = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-    values = [review_id, plant_id, data.review, date, data.user_id]
+    values = [review_id, plant_id, data.review, date, data.user_name]
     client.post_review(values)
     data = {
         "plant_id": plant_id,
-        "user_id": str(data.user_id),
+        "user_name": data.user_name,
         "review_id": str(review_id),
         "review": data.review,
         "date": date,

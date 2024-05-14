@@ -7,8 +7,7 @@ CREATE TABLE reviews
     review_id UUID,
     plant_id   int,
     review    text,
-    date       timestamp,
-    user_id    UUID,
+    date       text,
     user_name  text,
     PRIMARY KEY ((plant_id), date, review_id)
 );

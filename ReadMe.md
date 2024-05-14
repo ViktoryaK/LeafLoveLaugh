@@ -1,5 +1,7 @@
 # LeafLoveLaugh
 
+### Команда: Клим Ярослав, Кочеркевич Вікторія, Митник Олексій
+
 ## Vision
 LeafLoveLaugh - це веб-застосунок, побудований на мікросервісній архітектурі,
 основною ціллю якого є створення середовища як для поціновувачів домашніх рослин,
@@ -9,6 +11,15 @@ LeafLoveLaugh - це веб-застосунок, побудований на м
 до успішного вирощування рослин у власному домі. 
 
 
-## Use Cases
+## Use cases
+
+![Use cases](imgs/img1.png)
 
 ## Architecture diagram
+
+![Architecture diagram](imgs/img2.png)
+
+## Usage:
+```
+docker-compose up
+```

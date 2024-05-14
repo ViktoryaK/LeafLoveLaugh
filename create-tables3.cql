@@ -7,8 +7,7 @@ CREATE TABLE latest_reviews
     review_id  UUID,
     plant_id    int,
     review     text,
-    date        timestamp,
-    user_id     UUID,
+    date        text,
     user_name   text,
     PRIMARY KEY ((review_id), date)
 ) WITH CLUSTERING ORDER BY (date DESC);

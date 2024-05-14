@@ -3,10 +3,10 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from app.common import search_service_url
+from app.common import search_service_port
 from app.services.search.database_client import SearchDatabaseClient
 
-app = FastAPI(host="localhost", port=search_service_url)
+app = FastAPI(host="localhost", port=search_service_port)
 
 client = SearchDatabaseClient(host='cassandra-search', port=9042, keyspace='lll_search')
 

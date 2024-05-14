@@ -18,25 +18,6 @@ services:
       timeout: 10s
       retries: 5
 
-  postgres-users:
-    image: postgres
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 987234
-    volumes:
-      - ./postgres-users:/var/lib/postgresql/data
-      - ./create_tables.sql:/docker-entrypoint-initdb.d/create_tables.sql
-    networks:
-      - leaf-love-laugh-network
-    expose:
-      - 5432
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready", "-d", "postgres" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-
   cassandra-search:
     container_name: cassandra-search
     networks:
@@ -119,8 +100,6 @@ services:
         condition: service_healthy
       postgres-catalog:
         condition: service_healthy
-      postgres-users:
-        condition: service_healthy
 
   populate-postgres:
     container_name: populate-postgres
@@ -160,8 +139,6 @@ services:
       context: .
       dockerfile: dockerfiles/facade.Dockerfile
     depends_on:
-      lll-authentication:
-        condition: service_started
       lll-catalog:
         condition: service_started
       lll-latest:
@@ -186,22 +163,20 @@ services:
       populate-cassandra:
         condition: service_completed_successfully
 
-  lll-authentication:
-    container_name: lll-authentication
+  lll-search2:
+    container_name: lll-search
     networks:
       - leaf-love-laugh-network
-    image: lll-authentication
+    image: lll-search
     pull_policy: build
     expose:
       - 8080
     build:
       context: .
-      dockerfile: dockerfiles/authentication.Dockerfile
+      dockerfile: dockerfiles/search.Dockerfile
     depends_on:
-      postgres-users:
-        condition: service_started
-      cassandra-latest:
-        condition: service_healthy
+      populate-cassandra:
+        condition: service_completed_successfully
 
   lll-catalog:
     container_name: lll-catalog

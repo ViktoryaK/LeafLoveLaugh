@@ -11,9 +11,8 @@ class ReviewDatabaseClient(CassandraClient):
         return self._session.execute(query)
 
     def post_review(self, values):
-        query = (f"INSERT INTO {self._table_name} (review_id, plant_id, review, date, user_id, "
-                 "user_name) VALUES(?, ?, ?, "
-                 "?, ?, ?)")
+        query = (f"INSERT INTO {self._table_name} (review_id, plant_id, review, date, user_name) VALUES(?, ?, ?, "
+                 "?, ?)")
         prepared = self._session.prepare(query)
         try:
             self._session.execute_async(prepared, values)

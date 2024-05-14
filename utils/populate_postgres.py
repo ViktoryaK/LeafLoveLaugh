@@ -31,9 +31,9 @@ class PostgresClient:
         if self.conn:
             self.conn.close()
 
-    def insert_data(self, table, values):
+    def insert_data(self, table, values, i):
         self.cur.execute(
-            f"INSERT INTO {table} VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            f"INSERT INTO {table} VALUES ({i}, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
             values
         )
         self.conn.commit()
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     client.connect()
     client.clear(table_1)
     print("started")
-    for _, row in dataframe.iterrows():
+    for i, row in dataframe.iterrows():
         print(list(row))
-        client.insert_data(table_1, list(row))
+        client.insert_data(table_1, list(row), i)
     client.close()
